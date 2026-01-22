@@ -1,0 +1,19 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Data
+data/raw/*
+data/processed/*
+
+# OCR outputs
+*.ocr.json
+
+# Paddle / PaddleX models
+.paddlex/
+.paddleocr/
+
+# OS
+.DS_Store
+Thumbs.db
