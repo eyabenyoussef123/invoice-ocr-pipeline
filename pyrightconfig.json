@@ -1,0 +1,7 @@
+{
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Windows",
+  "typeCheckingMode": "basic",
+  "include": ["src", "."],
+  "exclude": [".git", ".venv", "__pycache__", "data"]
+}

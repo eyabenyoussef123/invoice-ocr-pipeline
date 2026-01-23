@@ -1,0 +1,31 @@
+{
+  "supplier": {
+    "raw": "SARL CAV/MICEN VET 58 rue Auguste Perret Z.AEUROPARC 94000 CRETEIL Telephone 01.43.68.07.31 Fax 0143751242"
+  },
+  "invoice_meta": {
+    "type": "facture",
+    "number": "PieceNF871",
+    "date": "04/02/2020"
+  },
+  "lines": [
+    {
+      "description": "SARL CAV/MICEN VET",
+      "qty": null,
+      "unit_price": "01.43",
+      "total": null
+    },
+    {
+      "description": "Total H.T.",
+      "qty": null,
+      "unit_price": "260.00",
+      "total": "0.00"
+    },
+    {
+      "description": "Total aPayer",
+      "qty": null,
+      "unit_price": "312.00",
+      "total": "312.00"
+    }
+  ],
+  "totals": {}
+}

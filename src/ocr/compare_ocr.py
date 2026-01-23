@@ -4,14 +4,19 @@ from pathlib import Path
 import json
 import statistics
 
-# ✅ Use newer API (CPU, French)
+# =========================
+# OCR INITIALIZATION
+# =========================
+# Stable PaddleOCR API (v2.7.x)
 ocr = PaddleOCR(
-    use_textline_orientation=False,
-    lang='fr'
+    use_angle_cls=True,   # text rotation correction
+    lang='fr',            # French
+    use_gpu=False         # CPU only
 )
 
-
-# Regex to detect monetary amounts
+# =========================
+# REGEX & KEYWORDS
+# =========================
 AMOUNT_RE = re.compile(
     r'(\d{1,3}(?:[ \u00A0,]\d{3})*(?:[.,]\d{2}))\s*(€|EUR|DT|TND)?',
     re.IGNORECASE
@@ -25,74 +30,84 @@ TOTAL_KEYWORDS = [
     'total'
 ]
 
-
+# =========================
+# OCR FUNCTION
+# =========================
 def run_ocr_on_image(image_path: Path):
     """
-    Run OCR on an image and return:
+    Run OCR using PaddleOCR stable API.
+    Returns:
     - extracted lines
     - average confidence
-    - full concatenated text
+    - full text
     """
-    # ✅ Use predict() without cls parameter
-    result = ocr.predict(str(image_path))
+
+    result = ocr.ocr(str(image_path), cls=True)
 
     extracted = []
     texts = []
     confs = []
 
-    # PaddleOCR returns list of dict-like OCRResult objects
-    for page_result in result:
-        # Extract recognized texts and scores
-        rec_texts = page_result.get('rec_texts', [])
-        rec_scores = page_result.get('rec_scores', [])
-
-        for text, score in zip(rec_texts, rec_scores):
-            conf = float(score)
+    # result structure:
+    # [
+    #   [
+    #     [box, (text, confidence)],
+    #     ...
+    #   ]
+    # ]
+    for page in result:
+        for box, (text, conf) in page:
+            conf = float(conf)
             extracted.append({
-                'text': text,
-                'conf': conf
+                "text": text,
+                "conf": conf,
+                "box": box
             })
             texts.append(text)
             confs.append(conf)
 
-    avg_conf = float(statistics.mean(confs)) if confs else 0.0
+    avg_conf = statistics.mean(confs) if confs else 0.0
     full_text = "\n".join(texts)
 
     return extracted, avg_conf, full_text
 
 
+# =========================
+# TOTAL DETECTION
+# =========================
 def find_total_in_text(text_block: str):
     """
-    Heuristic to find TOTAL TTC:
-    1) Search lines with 'total' keywords (bottom-up)
-    2) Fallback: largest amount detected
+    Heuristic to detect TOTAL amount:
+    1) Search 'total' keywords bottom-up
+    2) Fallback: largest detected amount
     """
+
     lines = text_block.splitlines()
 
     # 1️⃣ Keyword-based search (bottom of invoice)
     for line in reversed(lines):
         low = line.lower()
         if any(k in low for k in TOTAL_KEYWORDS):
-            m = AMOUNT_RE.search(line)
-            if m:
+            match = AMOUNT_RE.search(line)
+            if match:
                 return (
-                    m.group(1)
-                    .replace(' ', '')
-                    .replace('\u00A0', '')
-                    .replace(',', '.')
+                    match.group(1)
+                    .replace(" ", "")
+                    .replace("\u00A0", "")
+                    .replace(",", ".")
                 )
 
-    # 2️⃣ Fallback: take largest amount found
-    all_amounts = AMOUNT_RE.findall(text_block)
-    if not all_amounts:
+    # 2️⃣ Fallback: largest amount
+    matches = AMOUNT_RE.findall(text_block)
+    if not matches:
         return None
 
     cleaned = [
-        a[0]
-        .replace(' ', '')
-        .replace('\u00A0', '')
-        .replace(',', '.')
-        for a in all_amounts
+        m[0]
+        .replace(" ", "")
+        .replace("\u00A0", "")
+        .replace(",", ".")
+        for m in matches
     ]
 
     try:
@@ -102,14 +117,18 @@ def find_total_in_text(text_block: str):
         return cleaned[-1]
 
 
+# =========================
+# MAIN
+# =========================
 if __name__ == "__main__":
 
-    img_processed = Path("data/processed/test_processed.jpg")
-    img_original = Path("data/raw/test.jpg")
+    img_processed = Path("data/processed/test2_processed.png")
+    img_original = Path("data/raw/test2.png")
 
     for img in [img_processed, img_original]:
+
         if not img.exists():
-            print(f"ERROR: file not found: {img}")
+            print(f"❌ File not found: {img}")
             continue
 
         print(f"\n--- OCR on: {img.name} ---")
@@ -118,14 +137,14 @@ if __name__ == "__main__":
 
         print(f"Average confidence: {avg_conf:.3f}")
 
-        # Show first 10 recognized lines
+        # Show first 10 lines
         for i, e in enumerate(extracted[:10], start=1):
             print(f"[{i}] {e['text']} (conf={e['conf']:.2f})")
 
         total = find_total_in_text(fulltext)
         print("Detected total (heuristic):", total)
 
-        # Save OCR output as JSON
+        # Save JSON output
         out_json = img.with_suffix(".ocr.json")
         with open(out_json, "w", encoding="utf-8") as f:
             json.dump(

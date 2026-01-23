@@ -109,8 +109,8 @@ def show_image(image, title="Image"):
 # =========================
 
 if __name__ == "__main__":
-    img_path = Path("data/raw/test.jpg")
-    output_path = Path("data/processed/test_processed.jpg")
+    img_path = Path("data/raw/test2.png")
+    output_path = Path("data/processed/test2_processed.png")
 
     # 1. Load image
     original = load_image(img_path)
