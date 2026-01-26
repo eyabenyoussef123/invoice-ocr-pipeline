@@ -65,6 +65,6 @@ if __name__ == "__main__":
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
     
-    print(f"✅ Saved decision → {out_path}")
+    print(f"Saved decision → {out_path}")
     with open("final_invoice.json", "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)

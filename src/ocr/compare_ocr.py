@@ -122,8 +122,8 @@ def find_total_in_text(text_block: str):
 # =========================
 if __name__ == "__main__":
 
-    img_processed = Path("data/processed/test2_processed.png")
-    img_original = Path("data/raw/test2.png")
+    img_processed = Path("data/processed/invoice_0000.jpg")
+    img_original = Path("data/orange_factures/invoice_0000.jpg")
 
     for img in [img_processed, img_original]:
 
