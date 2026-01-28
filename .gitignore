@@ -6,6 +6,10 @@ __pycache__/
 # Data
 data/raw/*
 data/processed/*
+test_results/*
+tickets_results/*
+tickets/*
+results_generic/*
 
 # OCR outputs
 *.ocr.json
