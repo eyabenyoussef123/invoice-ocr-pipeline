@@ -1,19 +1,22 @@
-# Python
-venv/
-__pycache__/
-*.pyc
-
-# Data
-data/raw/*
-data/processed/*
+# =========================
+# DATA (NEVER PUSH)
+# =========================
+data/
+*.jpg
+*.jpeg
+*.png
+*.pdf
 
 # OCR outputs
 *.ocr.json
+*_decision.json
+*_processed.*
 
-# Paddle / PaddleX models
-.paddlex/
-.paddleocr/
+# Temp
+.temp/
+__pycache__/
 
-# OS
-.DS_Store
-Thumbs.db
+# Env
+venv/
+.env
+
